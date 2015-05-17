@@ -4,19 +4,38 @@ output:
   html_document:
     keep_md: true
 ---
-
+```{r setOptions,echo=FALSE}
+# Don't switch to scientific notation until we're over 1e6
+options(scipen=2)
+```
 
 ## Loading and preprocessing the data
-
-
+The data file is compressed in "activity.zip". Unzip the file and read the csv.
+```{r loadData,echo=TRUE}
+utils::unzip("activity.zip")
+activityData <- read.csv("activity.csv")
+colnames(activityData)
+```
 
 ## What is mean total number of steps taken per day?
-
-
+```{r stepsPerDay,echo=TRUE}
+stepsPerDay <- aggregate(steps ~ date, data=activityData, sum)
+head(stepsPerDay)
+hist(stepsPerDay$steps,10,xlab = "Steps Per Day", main = "Histogram of Steps Per Day")
+meanTotalStepsPerDay = round(mean(stepsPerDay$steps))
+medianTotalStepsPerDay = median(stepsPerDay$steps)
+```
+The mean total steps per day is `r meanTotalStepsPerDay` and the median is `r medianTotalStepsPerDay`
 
 ## What is the average daily activity pattern?
+```{r dailyPattern,echo=TRUE}
+dailyPattern <- aggregate(steps ~ interval, data=activityData, mean)
+plot(dailyPattern$interval, dailyPattern$steps, type="l", xlab="5min window during day", ylab="avg. steps", main="Daily activity pattern: Average steps per 5min interval")
+maxSteps <- dailyPattern[match(max(dailyPattern$steps), dailyPattern$steps),]
+abline(v=maxSteps$interval,col="red")
+```
 
-
+The interval with the highest average steps is `r maxSteps$interval` with `r round(maxSteps$steps,2)` steps.
 
 ## Imputing missing values
 
